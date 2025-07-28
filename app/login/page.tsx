@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const { login, loginWithGoogle, loginWithGithub, isAuthenticated } = useMinimalSupabaseAuth()
+  const { login, loginWithGoogle, loginWithGithub, resendConfirmation, createDemoUser, isAuthenticated } = useMinimalSupabaseAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -56,6 +56,36 @@ export default function LoginPage() {
     setLoading(true)
     await loginWithGithub()
     setLoading(false)
+  }
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setError("Please enter your email address first")
+      return
+    }
+    
+    setLoading(true)
+    try {
+      await resendConfirmation(email)
+    } catch (err) {
+      setError("Failed to resend confirmation email")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDemoLogin = async () => {
+    setLoading(true)
+    try {
+      const success = await createDemoUser()
+      if (success) {
+        router.push("/dashboard")
+      }
+    } catch (err) {
+      setError("Failed to create demo user")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -138,6 +168,14 @@ export default function LoginPage() {
                 <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
                   Forgot password?
                 </Link>
+                <button
+                  type="button"
+                  onClick={handleResendConfirmation}
+                  className="text-sm text-blue-600 hover:underline"
+                  disabled={loading}
+                >
+                  Resend confirmation
+                </button>
               </div>
 
               <Button type="submit" className="w-full btn-hover-lift" disabled={loading}>
@@ -182,6 +220,17 @@ export default function LoginPage() {
               >
                 <Chrome className="h-4 w-4 mr-2" />
                 Google
+              </Button>
+            </div>
+
+            <div className="text-center">
+              <Button 
+                variant="ghost" 
+                className="text-sm text-gray-600 hover:text-gray-800" 
+                disabled={loading}
+                onClick={handleDemoLogin}
+              >
+                Try Demo Account
               </Button>
             </div>
 

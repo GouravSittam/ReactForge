@@ -67,16 +67,18 @@ export default function DashboardPage() {
 
   const fetchSessions = async () => {
     try {
-      const token = localStorage.getItem("token")
-      const response = await fetch("/api/sessions", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setSessions(data.sessions)
-      }
+      // For now, get sessions from local storage since we're not using database storage
+      // In the future, you can implement Supabase database storage
+      const sessionKeys = Object.keys(localStorage).filter(key => key.startsWith('session_'))
+      const sessionsData = sessionKeys.map(key => {
+        try {
+          return JSON.parse(localStorage.getItem(key) || '{}')
+        } catch {
+          return null
+        }
+      }).filter(Boolean)
+      
+      setSessions(sessionsData)
     } catch (error) {
       console.error("Failed to fetch sessions:", error)
     } finally {
@@ -86,22 +88,23 @@ export default function DashboardPage() {
 
   const createNewSession = async () => {
     try {
-      const token = localStorage.getItem("token")
-      const response = await fetch("/api/sessions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sessionName: `New Session ${sessions.length + 1}`,
-        }),
-      })
-
-      if (response.ok) {
-        const responseData = await response.json()
-        router.push(`/session/${responseData.session._id}`)
+      // For now, create session in local storage since we're not using database storage
+      // In the future, you can implement Supabase database storage
+      const sessionId = Date.now().toString()
+      const newSession = {
+        _id: sessionId,
+        sessionName: `New Session ${sessions.length + 1}`,
+        lastModified: new Date().toISOString(),
+        chatHistory: [],
+        generatedCode: { jsx: "", css: "" },
+        componentProperties: [],
       }
+      
+      localStorage.setItem(`session_${sessionId}`, JSON.stringify(newSession))
+      setSessions(prev => [...prev, newSession])
+      
+      // Navigate to the new session
+      router.push(`/session/${sessionId}`)
     } catch (error) {
       console.error("Failed to create session:", error)
     }

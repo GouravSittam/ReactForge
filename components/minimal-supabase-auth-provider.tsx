@@ -20,6 +20,8 @@ interface AuthContextType {
   session: Session | null
   login: (email: string, password: string) => Promise<boolean>
   register: (email: string, password: string, name?: string) => Promise<boolean>
+  resendConfirmation: (email: string) => Promise<boolean>
+  createDemoUser: () => Promise<boolean>
   loginWithGoogle: () => Promise<boolean>
   loginWithGithub: () => Promise<boolean>
   logout: () => Promise<void>
@@ -94,6 +96,7 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       console.log('Attempting login for:', email)
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -101,11 +104,21 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
 
       if (error) {
         console.error('Login error:', error)
-        toast({
-          title: "Login failed",
-          description: error.message,
-          variant: "destructive",
-        })
+        
+        // Handle specific error cases
+        if (error.message === 'Email not confirmed') {
+          toast({
+            title: "Email not confirmed",
+            description: "Please check your email and click the confirmation link. Use the 'Resend confirmation' button if you need a new email.",
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Login failed",
+            description: error.message,
+            variant: "destructive",
+          })
+        }
         return false
       }
 
@@ -113,6 +126,7 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
         console.log('Login successful for:', data.user.email)
         const profile = createUserProfileFromAuth(data.user)
         setUser(profile)
+        setSession(data.session)
         toast({
           title: "Welcome back!",
           description: "You have been successfully logged in.",
@@ -136,43 +150,59 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
     try {
       console.log('Attempting registration for:', email)
       
-      // First, try to sign up without any metadata
+      // Check if signups are disabled
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: name ? { name } : undefined,
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
       })
 
       if (error) {
         console.error('Registration error:', error)
-        toast({
-          title: "Registration failed",
-          description: error.message,
-          variant: "destructive",
-        })
+        
+        // Handle specific error cases
+        if (error.message === 'Signups not allowed for this instance') {
+          toast({
+            title: "Registration disabled",
+            description: "User registration is currently disabled. Please contact the administrator or enable signups in Supabase settings.",
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Registration failed",
+            description: error.message,
+            variant: "destructive",
+          })
+        }
         return false
       }
 
       if (data.user) {
         console.log('Registration successful for:', data.user.email)
         
-        // Update user metadata after successful registration
-        if (name) {
-          const { error: updateError } = await supabase.auth.updateUser({
-            data: { name }
+        // Check if email confirmation is required
+        if (data.session) {
+          // User is immediately signed in (email confirmation disabled)
+          const profile = createUserProfileFromAuth(data.user)
+          setUser(profile)
+          setSession(data.session)
+          
+          toast({
+            title: "Account created!",
+            description: "Welcome to ComponentGen Pro!",
           })
-          if (updateError) {
-            console.warn('Failed to update user metadata:', updateError)
-          }
+          return true
+        } else {
+          // Email confirmation required - show helpful message
+          toast({
+            title: "Check your email!",
+            description: "We've sent you a confirmation link. Please check your email and click the link to verify your account.",
+          })
+          return true
         }
-        
-        const profile = createUserProfileFromAuth(data.user)
-        setUser(profile)
-        
-        toast({
-          title: "Account created!",
-          description: "Welcome to ComponentGen Pro!",
-        })
-        return true
       }
 
       return false
@@ -180,6 +210,75 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
       console.error('Registration failed:', error)
       toast({
         title: "Registration failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
+      return false
+    }
+  }
+
+  const createDemoUser = async (): Promise<boolean> => {
+    try {
+      // Create a demo user profile for development
+      const demoUser: UserProfile = {
+        id: 'demo-user-id',
+        email: 'demo@example.com',
+        name: 'Demo User',
+        avatar: '',
+        createdAt: new Date().toISOString(),
+      }
+      
+      setUser(demoUser)
+      toast({
+        title: "Demo mode activated!",
+        description: "You're now logged in as a demo user for testing purposes.",
+      })
+      return true
+    } catch (error) {
+      console.error('Demo user creation failed:', error)
+      toast({
+        title: "Demo mode failed",
+        description: "Failed to create demo user. Please try again.",
+        variant: "destructive",
+      })
+      return false
+    }
+  }
+
+  const resendConfirmation = async (email: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      })
+
+      if (error) {
+        // Handle rate limiting specifically
+        if (error.message.includes('security purposes') || error.message.includes('Too Many Requests')) {
+          toast({
+            title: "Rate limit exceeded",
+            description: "Please wait a minute before requesting another confirmation email.",
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Failed to resend confirmation",
+            description: error.message,
+            variant: "destructive",
+          })
+        }
+        return false
+      }
+
+      toast({
+        title: "Confirmation email sent!",
+        description: "Please check your email for the confirmation link.",
+      })
+      return true
+    } catch (error) {
+      console.error('Resend confirmation failed:', error)
+      toast({
+        title: "Failed to resend confirmation",
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       })
@@ -311,6 +410,8 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
         session,
         login,
         register,
+        resendConfirmation,
+        createDemoUser,
         loginWithGoogle,
         loginWithGithub,
         logout,

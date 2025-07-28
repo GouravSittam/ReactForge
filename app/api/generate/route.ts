@@ -1,10 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { connectDB } from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vbptvktbnwsxkljmcvzj.supabase.co'
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+
+// Create Supabase client with service role key for server-side operations
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 
 const model = genAI.getGenerativeModel({
@@ -71,22 +73,19 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7);
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
-    const { sessionId, message, chatHistory } = await request.json();
-
-    const { db } = await connectDB();
-
-    // Get current session to access existing code
-    const session = await db.collection("sessions").findOne({
-      _id: new ObjectId(sessionId),
-      userId: new ObjectId(decoded.userId),
-    });
-
-    if (!session) {
-      return NextResponse.json({ error: "Session not found" }, { status: 404 });
+    
+    // Verify the token with Supabase
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const currentCode = session.generatedCode?.jsx || "";
+    const { sessionId, message, chatHistory } = await request.json();
+
+    // For now, use empty current code since we're using local storage
+    // In the future, you can implement Supabase database storage
+    const currentCode = "";
     const prompt = generateComponentPrompt(message, chatHistory, currentCode);
 
     // Generate response with Gemini
@@ -102,24 +101,8 @@ export async function POST(request: NextRequest) {
       css: cssMatch ? cssMatch[1] : "",
     };
 
-    // Update session with new chat message and code
-    await db.collection("sessions").updateOne(
-      { _id: new ObjectId(sessionId) },
-      {
-        $set: {
-          chatHistory: [
-            ...chatHistory,
-            {
-              role: "assistant",
-              content: response,
-              timestamp: new Date(),
-            },
-          ],
-          generatedCode,
-          lastModified: new Date(),
-        },
-      }
-    );
+    // For now, just return the response since we're using local storage
+    // In the future, you can implement Supabase database storage
 
     return NextResponse.json({
       response,

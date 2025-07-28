@@ -83,41 +83,77 @@ export function ChatInterface({ sessionId }: ChatInterfaceProps) {
     setStreamingMessage("")
 
     try {
-      const token = localStorage.getItem("token")
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sessionId,
-          message: userMessage.content,
-          chatHistory: [...chatHistory, userMessage],
-        }),
-      })
+      // For now, use a mock response since we're not using the API
+      // In the future, you can implement proper API calls with Supabase auth
+      const mockResponse = {
+        response: `Here's a sample React component based on your request: "${userMessage.content}"
 
-      if (response.ok) {
-        const data = await response.json()
+\`\`\`jsx
+import React from 'react';
 
-        const assistantMessage: ChatMessage = {
-          role: "assistant",
-          content: data.response,
-          timestamp: new Date(),
-          id: Date.now().toString(),
+function SampleComponent() {
+  return (
+    <div className="p-4 bg-white rounded-lg shadow-md">
+      <h2 className="text-xl font-bold text-gray-800 mb-2">
+        Sample Component
+      </h2>
+      <p className="text-gray-600">
+        This is a sample component generated based on your request.
+      </p>
+    </div>
+  );
+}
+
+export default SampleComponent;
+\`\`\`
+
+\`\`\`css
+/* Additional styles can be added here */
+\`\`\`
+
+This component includes:
+- Modern React functional component
+- Tailwind CSS classes for styling
+- Responsive design
+- Clean, accessible markup`,
+        code: {
+          jsx: `import React from 'react';
+
+function SampleComponent() {
+  return (
+    <div className="p-4 bg-white rounded-lg shadow-md">
+      <h2 className="text-xl font-bold text-gray-800 mb-2">
+        Sample Component
+      </h2>
+      <p className="text-gray-600">
+        This is a sample component generated based on your request.
+      </p>
+    </div>
+  );
+}
+
+export default SampleComponent;`,
+          css: `/* Additional styles can be added here */`
         }
+      }
 
-        addChatMessage(assistantMessage)
+      // Simulate API response
+      const data = mockResponse
+      const assistantMessage: ChatMessage = {
+        role: "assistant",
+        content: data.response,
+        timestamp: new Date(),
+        id: Date.now().toString(),
+      }
 
-        if (data.code) {
-          updateCode(data.code)
-          toast({
-            title: "Component generated!",
-            description: "Your component has been updated in the preview.",
-          })
-        }
-      } else {
-        throw new Error("Failed to generate response")
+      addChatMessage(assistantMessage)
+
+      if (data.code) {
+        updateCode(data.code)
+        toast({
+          title: "Component generated!",
+          description: "Your component has been updated in the preview.",
+        })
       }
     } catch (error) {
       console.error("Error generating response:", error)

@@ -32,7 +32,7 @@ export default function RegisterPage() {
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const { register, loginWithGoogle, loginWithGithub, isAuthenticated } = useMinimalSupabaseAuth()
+  const { register, loginWithGoogle, loginWithGithub, createDemoUser, isAuthenticated } = useMinimalSupabaseAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -310,6 +310,29 @@ export default function RegisterPage() {
               >
                 <Chrome className="h-4 w-4 mr-2" />
                 Google
+              </Button>
+            </div>
+
+            <div className="text-center">
+              <Button 
+                variant="ghost" 
+                className="text-sm text-gray-600 hover:text-gray-800" 
+                disabled={loading}
+                onClick={async () => {
+                  setLoading(true)
+                  try {
+                    const success = await createDemoUser()
+                    if (success) {
+                      router.push("/dashboard")
+                    }
+                  } catch (err) {
+                    setError("Failed to create demo user")
+                  } finally {
+                    setLoading(false)
+                  }
+                }}
+              >
+                Try Demo Account
               </Button>
             </div>
 

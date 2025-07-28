@@ -59,21 +59,32 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   loadSession: async (sessionId: string) => {
     set({ isLoading: true })
     try {
-      const token = localStorage.getItem("token")
-      const response = await fetch(`/api/sessions/${sessionId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const session = data.session
+      // For now, use local storage since we're not using database storage
+      // In the future, you can implement Supabase database storage
+      const storedSession = localStorage.getItem(`session_${sessionId}`)
+      if (storedSession) {
+        const session = JSON.parse(storedSession)
         set({
           currentSession: session,
           chatHistory: session.chatHistory || [],
           generatedCode: session.generatedCode || { jsx: "", css: "" },
           componentProperties: session.componentProperties || [],
+        })
+      } else {
+        // Create a new session if none exists
+        const newSession = {
+          _id: sessionId,
+          sessionName: "New Session",
+          lastModified: new Date().toISOString(),
+          chatHistory: [],
+          generatedCode: { jsx: "", css: "" },
+          componentProperties: [],
+        }
+        set({
+          currentSession: newSession,
+          chatHistory: [],
+          generatedCode: { jsx: "", css: "" },
+          componentProperties: [],
         })
       }
     } catch (error) {
@@ -88,20 +99,17 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     if (!currentSession) return
 
     try {
-      const token = localStorage.getItem("token")
-      await fetch(`/api/sessions/${currentSession._id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chatHistory,
-          generatedCode,
-          componentProperties,
-          lastModified: new Date().toISOString(),
-        }),
-      })
+      // For now, save to local storage since we're not using database storage
+      // In the future, you can implement Supabase database storage
+      const updatedSession = {
+        ...currentSession,
+        chatHistory,
+        generatedCode,
+        componentProperties,
+        lastModified: new Date().toISOString(),
+      }
+      localStorage.setItem(`session_${currentSession._id}`, JSON.stringify(updatedSession))
+      set({ currentSession: updatedSession })
     } catch (error) {
       console.error("Failed to save session:", error)
     }
@@ -122,28 +130,15 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     if (!currentSession) return
 
     try {
-      const token = localStorage.getItem("token")
-      const response = await fetch(`/api/sessions/${currentSession._id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sessionName: name,
-        }),
-      })
-
-      if (response.ok) {
-        set((state) => ({
-          currentSession: state.currentSession
-            ? {
-                ...state.currentSession,
-                sessionName: name,
-              }
-            : null,
-        }))
+      // For now, update local storage since we're not using database storage
+      // In the future, you can implement Supabase database storage
+      const updatedSession = {
+        ...currentSession,
+        sessionName: name,
+        lastModified: new Date().toISOString(),
       }
+      localStorage.setItem(`session_${currentSession._id}`, JSON.stringify(updatedSession))
+      set({ currentSession: updatedSession })
     } catch (error) {
       console.error("Failed to update session name:", error)
     }

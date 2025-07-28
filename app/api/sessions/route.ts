@@ -1,9 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
-import jwt from "jsonwebtoken"
-import { connectDB } from "@/lib/mongodb"
-import { ObjectId } from "mongodb"
+import { createClient } from '@supabase/supabase-js'
 
-const JWT_SECRET = "Gourav@2004"
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vbptvktbnwsxkljmcvzj.supabase.co'
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+
+// Create Supabase client with service role key for server-side operations
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // GET - Fetch user sessions
 export async function GET(request: NextRequest) {
@@ -14,16 +16,17 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.substring(7)
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    
+    // Verify the token with Supabase
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+    }
 
-    const { db } = await connectDB()
-    const sessions = await db
-      .collection("sessions")
-      .find({ userId: new ObjectId(decoded.userId) })
-      .sort({ lastModified: -1 })
-      .toArray()
-
-    return NextResponse.json({ sessions })
+    // For now, return empty sessions since we're using local storage
+    // In the future, you can implement Supabase database storage
+    return NextResponse.json({ sessions: [] })
   } catch (error) {
     console.error("Fetch sessions error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -39,20 +42,27 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.substring(7)
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    
+    // Verify the token with Supabase
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+    }
+
     const { sessionName } = await request.json()
 
-    const { db } = await connectDB()
-    const result = await db.collection("sessions").insertOne({
-      userId: new ObjectId(decoded.userId),
+    // For now, return a mock session since we're using local storage
+    // In the future, you can implement Supabase database storage
+    const session = {
+      id: Date.now().toString(),
+      userId: user.id,
       sessionName: sessionName || "New Session",
       chatHistory: [],
       generatedCode: { jsx: "", css: "" },
-      createdAt: new Date(),
-      lastModified: new Date(),
-    })
-
-    const session = await db.collection("sessions").findOne({ _id: result.insertedId })
+      createdAt: new Date().toISOString(),
+      lastModified: new Date().toISOString(),
+    }
 
     return NextResponse.json({ session })
   } catch (error) {
