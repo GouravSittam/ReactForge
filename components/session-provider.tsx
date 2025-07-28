@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { createContext, useContext, useEffect, useCallback } from "react"
-import { useAuth } from "@/components/auth-provider"
+import { useMinimalSupabaseAuth } from "@/components/minimal-supabase-auth-provider"
 import { useSessionStore } from "@/hooks/use-session-store"
 
 interface SessionContextType {
@@ -13,7 +13,7 @@ interface SessionContextType {
 const SessionContext = createContext<SessionContextType | undefined>(undefined)
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated } = useMinimalSupabaseAuth()
   const { currentSession, saveSession } = useSessionStore()
 
   // Auto-save functionality

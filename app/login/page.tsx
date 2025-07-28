@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/components/auth-provider"
+import { useMinimalSupabaseAuth } from "@/components/minimal-supabase-auth-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const { login, isAuthenticated } = useAuth()
+  const { login, loginWithGoogle, loginWithGithub, isAuthenticated } = useMinimalSupabaseAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -46,12 +46,15 @@ export default function LoginPage() {
     }
   }
 
-  const handleDemoLogin = async () => {
+  const handleGoogleLogin = async () => {
     setLoading(true)
-    const success = await login("demo@componentgen.pro", "demo123")
-    if (success) {
-      router.push("/dashboard")
-    }
+    await loginWithGoogle()
+    setLoading(false)
+  }
+
+  const handleGithubLogin = async () => {
+    setLoading(true)
+    await loginWithGithub()
     setLoading(false)
   }
 
@@ -162,19 +165,25 @@ export default function LoginPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="btn-hover-lift bg-transparent" disabled={loading}>
+              <Button 
+                variant="outline" 
+                className="btn-hover-lift bg-transparent" 
+                disabled={loading}
+                onClick={handleGithubLogin}
+              >
                 <Github className="h-4 w-4 mr-2" />
                 GitHub
               </Button>
-              <Button variant="outline" className="btn-hover-lift bg-transparent" disabled={loading}>
+              <Button 
+                variant="outline" 
+                className="btn-hover-lift bg-transparent" 
+                disabled={loading}
+                onClick={handleGoogleLogin}
+              >
                 <Chrome className="h-4 w-4 mr-2" />
                 Google
               </Button>
             </div>
-
-            <Button variant="secondary" className="w-full btn-hover-lift" onClick={handleDemoLogin} disabled={loading}>
-              Try Demo Account
-            </Button>
 
             <div className="text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">

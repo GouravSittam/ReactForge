@@ -4,7 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
-import { AuthProvider } from "@/components/auth-provider"
+import { MinimalSupabaseAuthProvider } from "@/components/minimal-supabase-auth-provider"
 import { SessionProvider } from "@/components/session-provider"
 import { ErrorBoundary } from "@/components/error-boundary"
 
@@ -27,12 +27,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <ErrorBoundary>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <AuthProvider>
+            <MinimalSupabaseAuthProvider>
               <SessionProvider>
                 {children}
                 <Toaster />
               </SessionProvider>
-            </AuthProvider>
+            </MinimalSupabaseAuthProvider>
           </ThemeProvider>
         </ErrorBoundary>
       </body>

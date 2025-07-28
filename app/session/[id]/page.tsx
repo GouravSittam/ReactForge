@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useAuth } from "@/components/auth-provider"
+import { useMinimalSupabaseAuth } from "@/components/minimal-supabase-auth-provider"
 import { useRouter } from "next/navigation"
 import { ChatInterface } from "@/components/chat/chat-interface"
 import { ComponentPreview } from "@/components/preview/component-preview"
 import { CodeEditor } from "@/components/editor/code-editor"
-import { PropertyPanel } from "@/components/property-panel/property-panel"
+import { PropertyPanel } from "@/components/property-panel"
 import { SessionHeader } from "@/components/session/session-header"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { useSessionStore } from "@/hooks/use-session-store"
@@ -19,7 +19,7 @@ interface SessionPageProps {
 }
 
 export default function SessionPage({ params }: SessionPageProps) {
-  const { user, loading } = useAuth()
+  const { user, loading } = useMinimalSupabaseAuth()
   const router = useRouter()
   const { currentSession, loadSession, saveSession } = useSessionStore()
   const [showPropertyPanel, setShowPropertyPanel] = useState(false)

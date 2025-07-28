@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useAuth } from "@/components/auth-provider"
+import { useMinimalSupabaseAuth } from "@/components/minimal-supabase-auth-provider"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -47,7 +47,7 @@ interface Session {
 }
 
 export default function DashboardPage() {
-  const { user, logout, loading } = useAuth()
+  const { user, logout, loading } = useMinimalSupabaseAuth()
   const router = useRouter()
   const [sessions, setSessions] = useState<Session[]>([])
   const [searchTerm, setSearchTerm] = useState("")

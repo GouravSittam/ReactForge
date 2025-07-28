@@ -13,18 +13,30 @@ interface GeneratedCode {
   css: string
 }
 
+interface ComponentProperty {
+  name: string
+  type: "string" | "number" | "boolean" | "color" | "select" | "textarea"
+  value: any
+  options?: string[]
+  min?: number
+  max?: number
+  step?: number
+}
+
 interface Session {
   _id: string
   sessionName: string
   lastModified: string
   chatHistory: ChatMessage[]
   generatedCode: GeneratedCode
+  componentProperties?: ComponentProperty[]
 }
 
 interface SessionStore {
   currentSession: Session | null
   chatHistory: ChatMessage[]
   generatedCode: GeneratedCode
+  componentProperties: ComponentProperty[]
   isLoading: boolean
 
   // Actions
@@ -33,6 +45,7 @@ interface SessionStore {
   addChatMessage: (message: ChatMessage) => void
   updateCode: (code: GeneratedCode) => void
   updateSessionName: (name: string) => Promise<void>
+  updateComponentProperties: (properties: ComponentProperty[]) => void
   clearSession: () => void
 }
 
@@ -40,6 +53,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   currentSession: null,
   chatHistory: [],
   generatedCode: { jsx: "", css: "" },
+  componentProperties: [],
   isLoading: false,
 
   loadSession: async (sessionId: string) => {
@@ -59,6 +73,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
           currentSession: session,
           chatHistory: session.chatHistory || [],
           generatedCode: session.generatedCode || { jsx: "", css: "" },
+          componentProperties: session.componentProperties || [],
         })
       }
     } catch (error) {
@@ -69,7 +84,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   },
 
   saveSession: async () => {
-    const { currentSession, chatHistory, generatedCode } = get()
+    const { currentSession, chatHistory, generatedCode, componentProperties } = get()
     if (!currentSession) return
 
     try {
@@ -83,6 +98,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
         body: JSON.stringify({
           chatHistory,
           generatedCode,
+          componentProperties,
           lastModified: new Date().toISOString(),
         }),
       })
@@ -133,11 +149,16 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     }
   },
 
+  updateComponentProperties: (properties: ComponentProperty[]) => {
+    set({ componentProperties: properties })
+  },
+
   clearSession: () => {
     set({
       currentSession: null,
       chatHistory: [],
       generatedCode: { jsx: "", css: "" },
+      componentProperties: [],
     })
   },
 }))

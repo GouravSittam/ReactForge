@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/components/auth-provider"
+import { useMinimalSupabaseAuth } from "@/components/minimal-supabase-auth-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -32,7 +32,7 @@ export default function RegisterPage() {
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const { register, isAuthenticated } = useAuth()
+  const { register, loginWithGoogle, loginWithGithub, isAuthenticated } = useMinimalSupabaseAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -285,11 +285,29 @@ export default function RegisterPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" className="btn-hover-lift bg-transparent" disabled={loading}>
+              <Button 
+                variant="outline" 
+                className="btn-hover-lift bg-transparent" 
+                disabled={loading}
+                onClick={async () => {
+                  setLoading(true)
+                  await loginWithGithub()
+                  setLoading(false)
+                }}
+              >
                 <Github className="h-4 w-4 mr-2" />
                 GitHub
               </Button>
-              <Button variant="outline" className="btn-hover-lift bg-transparent" disabled={loading}>
+              <Button 
+                variant="outline" 
+                className="btn-hover-lift bg-transparent" 
+                disabled={loading}
+                onClick={async () => {
+                  setLoading(true)
+                  await loginWithGoogle()
+                  setLoading(false)
+                }}
+              >
                 <Chrome className="h-4 w-4 mr-2" />
                 Google
               </Button>
