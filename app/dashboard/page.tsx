@@ -169,7 +169,7 @@ export default function DashboardPage() {
               <Code className="h-8 w-8 text-blue-600" />
               <Sparkles className="h-4 w-4 text-yellow-500 absolute -top-1 -right-1" />
             </div>
-            <h1 className="text-2xl font-bold gradient-text">ComponentGen Pro</h1>
+            <h1 className="text-2xl font-bold gradient-text">ReactForge</h1>
           </motion.div>
 
           <div className="flex items-center space-x-4">

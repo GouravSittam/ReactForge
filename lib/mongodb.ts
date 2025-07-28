@@ -18,7 +18,7 @@ export async function connectDB() {
     const client = new MongoClient(MONGODB_URI);
     await client.connect();
 
-    const db = client.db("component-generator");
+    const db = client.db("reactforge");
 
     cachedClient = client;
     cachedDb = db;

@@ -41,7 +41,7 @@ Replace your old auth environment variables with Supabase ones:
 
 **Old (.env.local):**
 ```env
-MONGODB_URI=mongodb://localhost:27017/component-generator
+MONGODB_URI=mongodb://localhost:27017/reactforge
 JWT_SECRET=your-jwt-secret
 ```
 

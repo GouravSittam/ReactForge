@@ -1,6 +1,6 @@
 # Supabase Setup Guide
 
-This guide will help you set up Supabase authentication for your ComponentGen Pro application.
+This guide will help you set up Supabase authentication for your ReactForge application.
 
 ## 1. Create a Supabase Project
 
@@ -8,7 +8,7 @@ This guide will help you set up Supabase authentication for your ComponentGen Pr
 2. Click "New Project"
 3. Choose your organization
 4. Enter project details:
-   - Name: `componentgen-pro` (or your preferred name)
+   - Name: `reactforge` (or your preferred name)
    - Database Password: Choose a strong password
    - Region: Select the region closest to your users
 5. Click "Create new project"
@@ -87,7 +87,7 @@ This will create:
 1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
 2. Click "New OAuth App"
 3. Configure the app:
-   - Application name: `ComponentGen Pro`
+   - Application name: `ReactForge`
    - Homepage URL: `http://localhost:3000`
    - Authorization callback URL: `https://your-project-id.supabase.co/auth/v1/callback`
 

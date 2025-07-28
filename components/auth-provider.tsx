@@ -126,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(data.user)
         toast({
           title: "Account created!",
-          description: "Welcome to ComponentGen Pro!",
+          description: "Welcome to ReactForge!",
         })
         return true
       } else {

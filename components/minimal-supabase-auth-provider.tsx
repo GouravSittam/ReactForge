@@ -208,7 +208,7 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
           
           toast({
             title: "Account created!",
-            description: "Welcome to ComponentGen Pro!",
+            description: "Welcome to ReactForge!",
           })
           return true
         } else {

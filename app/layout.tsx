@@ -11,7 +11,7 @@ import { ErrorBoundary } from "@/components/error-boundary"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ComponentGen Pro - AI-Driven React Component Playground",
+      title: "ReactForge - AI-Driven React Component Playground",
   description: "Generate, customize, and export beautiful React components with AI assistance",
   keywords: ["React", "AI", "Component Generator", "Next.js", "TypeScript"],
     generator: 'v0.dev'

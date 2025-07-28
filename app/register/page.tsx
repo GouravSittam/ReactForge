@@ -95,7 +95,7 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-2">
             <Code className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold gradient-text">ComponentGen Pro</span>
+            <span className="text-2xl font-bold gradient-text">ReactForge</span>
           </Link>
         </div>
 
@@ -103,7 +103,7 @@ export default function RegisterPage() {
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-2xl">Create Account</CardTitle>
             <CardDescription className="text-base">
-              Join ComponentGen Pro and start creating amazing React components with AI
+              Join ReactForge and start creating amazing React components with AI
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">

@@ -210,7 +210,7 @@ export function SupabaseAuthProvider({ children }: { children: React.ReactNode }
         
         toast({
           title: "Account created!",
-          description: "Welcome to ComponentGen Pro!",
+          description: "Welcome to ReactForge!",
         })
         return true
       }

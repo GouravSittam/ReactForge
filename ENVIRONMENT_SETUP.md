@@ -7,7 +7,7 @@ Your application is now working with fallback responses, but to get full Supabas
 Create a file called `.env.local` in your project root with the following content:
 
 ```env
-MONGODB_URI=mongodb://localhost:27017/component-generator
+MONGODB_URI=mongodb://localhost:27017/reactforge
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 GOOGLE_API_KEY=your-google-ai-api-key-here
 
