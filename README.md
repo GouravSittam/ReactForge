@@ -284,6 +284,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Supabase** - For the powerful backend services
 - **Tailwind CSS** - For the utility-first CSS framework
 - **Framer Motion** - For the smooth animations
+- **[Gourav Chaudhary](https://gouravsittam.vercel.app)** - Project creator and developer
 
 ---
 
@@ -292,7 +293,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: [docs.reactforge.dev](https://docs.reactforge.dev)
 - **Issues**: [GitHub Issues](https://github.com/GouravSittam/ReactForge/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/GouravSittam/ReactForge/discussions)
-- **Email**: support@reactforge.dev
+- **Email**: [gouravsittam@gmail.com](mailto:gouravsittam@gmail.com)
 
 ---
 
@@ -301,7 +302,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Made with ❤️ by the ReactForge Team**
 
 [![GitHub](https://img.shields.io/badge/GitHub-Follow%20us-black?style=for-the-badge&logo=github)](https://github.com/GouravSittam)
-[![Twitter](https://img.shields.io/badge/Twitter-Follow%20us-blue?style=for-the-badge&logo=twitter)](https://twitter.com/reactforge)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/company/reactforge)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/gouravsittam/)
+[![Facebook](https://img.shields.io/badge/Facebook-Follow%20us-blue?style=for-the-badge&logo=facebook)](https://www.facebook.com/profile.php?id=100011433522248)
+[![Instagram](https://img.shields.io/badge/Instagram-Follow%20us-pink?style=for-the-badge&logo=instagram)](https://www.instagram.com/gouravv.c/)
+[![Email](https://img.shields.io/badge/Email-Contact%20us-red?style=for-the-badge&logo=gmail)](mailto:gouravsittam@gmail.com)
 
 </div>

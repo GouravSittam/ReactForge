@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import { Github, Instagram, Linkedin, Menu, X, Code, Sparkles } from 'lucide-react';
 import Link from 'next/link';
@@ -180,8 +182,8 @@ const Navbar: React.FC = () => {
             <Link href="#demo" className="text-gray-300 hover:text-white transition-colors duration-300">
               Demo
             </Link>
-            <Link href="#docs" className="text-gray-300 hover:text-white transition-colors duration-300">
-              Docs
+            <Link href="https://gouravsittam.vercel.app" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors duration-300">
+              Portfolio
             </Link>
             <Link href="/login" className="text-gray-300 hover:text-white transition-colors duration-300">
               Login
@@ -209,8 +211,8 @@ const Navbar: React.FC = () => {
               <Link href="#demo" className="text-gray-300 hover:text-white transition-colors duration-300 py-2">
                 Demo
               </Link>
-              <Link href="#docs" className="text-gray-300 hover:text-white transition-colors duration-300 py-2">
-                Docs
+              <Link href="https://gouravsittam.vercel.app" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors duration-300 py-2">
+                Portfolio
               </Link>
               <Link href="/login" className="text-gray-300 hover:text-white transition-colors duration-300 py-2">
                 Login
@@ -263,13 +265,13 @@ export const Component: React.FC = () => {
         </div>
         
         <div className="flex justify-center space-x-6">
-          <a href="https://github.com/GouravSittam/ReactForge" className="text-gray-500 hover:text-gray-300 transition-colors duration-300">
+          <a href="https://github.com/GouravSittam" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300 transition-colors duration-300">
             <Github size={20} className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
           </a>
-          <a href="#" className="text-gray-500 hover:text-gray-300 transition-colors duration-300">
+          <a href="https://www.linkedin.com/in/gouravsittam/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300 transition-colors duration-300">
             <Linkedin size={20} className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
           </a>
-          <a href="#" className="text-gray-500 hover:text-gray-300 transition-colors duration-300">
+          <a href="https://www.instagram.com/gouravv.c/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-300 transition-colors duration-300">
             <Instagram size={20} className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
           </a>
         </div>
