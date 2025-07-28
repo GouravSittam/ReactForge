@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useMinimalSupabaseAuth } from "@/components/minimal-supabase-auth-provider"
 import { useRouter } from "next/navigation"
+import { getAllUserSessions, setUserData } from "@/lib/user-storage"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -67,17 +68,8 @@ export default function DashboardPage() {
 
   const fetchSessions = async () => {
     try {
-      // For now, get sessions from local storage since we're not using database storage
-      // In the future, you can implement Supabase database storage
-      const sessionKeys = Object.keys(localStorage).filter(key => key.startsWith('session_'))
-      const sessionsData = sessionKeys.map(key => {
-        try {
-          return JSON.parse(localStorage.getItem(key) || '{}')
-        } catch {
-          return null
-        }
-      }).filter(Boolean)
-      
+      // Get user-specific sessions using utility function
+      const sessionsData = getAllUserSessions()
       setSessions(sessionsData)
     } catch (error) {
       console.error("Failed to fetch sessions:", error)
@@ -88,8 +80,6 @@ export default function DashboardPage() {
 
   const createNewSession = async () => {
     try {
-      // For now, create session in local storage since we're not using database storage
-      // In the future, you can implement Supabase database storage
       const sessionId = Date.now().toString()
       const newSession = {
         _id: sessionId,
@@ -100,7 +90,8 @@ export default function DashboardPage() {
         componentProperties: [],
       }
       
-      localStorage.setItem(`session_${sessionId}`, JSON.stringify(newSession))
+      // Save session using utility function
+      setUserData(`session_${sessionId}`, newSession)
       setSessions(prev => [...prev, newSession])
       
       // Navigate to the new session

@@ -1,6 +1,8 @@
 "use client"
 
 import { create } from "zustand"
+import { useMinimalSupabaseAuth } from "@/components/minimal-supabase-auth-provider"
+import { getUserData, setUserData, getAllUserSessions } from "@/lib/user-storage"
 
 interface ChatMessage {
   role: "user" | "assistant"
@@ -59,16 +61,14 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   loadSession: async (sessionId: string) => {
     set({ isLoading: true })
     try {
-      // For now, use local storage since we're not using database storage
-      // In the future, you can implement Supabase database storage
-      const storedSession = localStorage.getItem(`session_${sessionId}`)
+      // Use utility function to get user-specific session data
+      const storedSession = getUserData(`session_${sessionId}`)
       if (storedSession) {
-        const session = JSON.parse(storedSession)
         set({
-          currentSession: session,
-          chatHistory: session.chatHistory || [],
-          generatedCode: session.generatedCode || { jsx: "", css: "" },
-          componentProperties: session.componentProperties || [],
+          currentSession: storedSession,
+          chatHistory: storedSession.chatHistory || [],
+          generatedCode: storedSession.generatedCode || { jsx: "", css: "" },
+          componentProperties: storedSession.componentProperties || [],
         })
       } else {
         // Create a new session if none exists
@@ -99,8 +99,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     if (!currentSession) return
 
     try {
-      // For now, save to local storage since we're not using database storage
-      // In the future, you can implement Supabase database storage
+      // Save to user-specific local storage using utility function
       const updatedSession = {
         ...currentSession,
         chatHistory,
@@ -108,7 +107,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
         componentProperties,
         lastModified: new Date().toISOString(),
       }
-      localStorage.setItem(`session_${currentSession._id}`, JSON.stringify(updatedSession))
+      setUserData(`session_${currentSession._id}`, updatedSession)
       set({ currentSession: updatedSession })
     } catch (error) {
       console.error("Failed to save session:", error)
@@ -130,14 +129,13 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     if (!currentSession) return
 
     try {
-      // For now, update local storage since we're not using database storage
-      // In the future, you can implement Supabase database storage
+      // Update user-specific local storage using utility function
       const updatedSession = {
         ...currentSession,
         sessionName: name,
         lastModified: new Date().toISOString(),
       }
-      localStorage.setItem(`session_${currentSession._id}`, JSON.stringify(updatedSession))
+      setUserData(`session_${currentSession._id}`, updatedSession)
       set({ currentSession: updatedSession })
     } catch (error) {
       console.error("Failed to update session name:", error)

@@ -128,7 +128,7 @@ export default function HomePage() {
                 Start Creating
               </Button>
             </Link>
-            <Link href="/demo">
+            <Link href="https://github.com/GouravSittam/ReactForge">
               <Button
                 variant="outline"
                 size="lg"

@@ -63,6 +63,8 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
         setSession(session)
         const profile = createUserProfileFromAuth(session.user)
         setUser(profile)
+        // Store user ID in localStorage for user-specific data
+        localStorage.setItem('currentUserId', session.user.id)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
@@ -77,13 +79,24 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email)
+        
+        // Clear previous user data if switching users
+        const currentUserId = localStorage.getItem('currentUserId')
+        if (currentUserId && session?.user?.id !== currentUserId) {
+          clearUserData(currentUserId)
+        }
+        
         setSession(session)
         
         if (session?.user) {
           const profile = createUserProfileFromAuth(session.user)
           setUser(profile)
+          // Store user ID in localStorage for user-specific data
+          localStorage.setItem('currentUserId', session.user.id)
         } else {
           setUser(null)
+          // Clear user ID from localStorage
+          localStorage.removeItem('currentUserId')
         }
         
         setLoading(false)
@@ -229,6 +242,8 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
       }
       
       setUser(demoUser)
+      // Store demo user ID in localStorage for user-specific data
+      localStorage.setItem('currentUserId', 'demo-user-id')
       toast({
         title: "Demo mode activated!",
         description: "You're now logged in as a demo user for testing purposes.",
@@ -393,6 +408,8 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
 
       setUser(null)
       setSession(null)
+      // Clear user ID from localStorage
+      localStorage.removeItem('currentUserId')
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
@@ -401,6 +418,18 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
     } catch (error) {
       console.error('Logout failed:', error)
     }
+  }
+
+  // Function to clear all user-specific data
+  const clearUserData = (userId: string) => {
+    const keysToRemove = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith(`user_${userId}_`)) {
+        keysToRemove.push(key)
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key))
   }
 
   return (
