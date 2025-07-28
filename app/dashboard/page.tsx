@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useMinimalSupabaseAuth } from "@/components/minimal-supabase-auth-provider"
 import { useRouter } from "next/navigation"
-import { getAllUserSessions, setUserData } from "@/lib/user-storage"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -35,15 +34,24 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 
 interface Session {
-  _id: string
-  sessionName: string
-  lastModified: string
-  chatHistory: any[]
-  generatedCode: {
+  id?: string
+  _id?: string
+  session_name?: string
+  sessionName?: string
+  last_modified?: string
+  lastModified?: string
+  chat_history?: any[]
+  chatHistory?: any[]
+  generated_code?: {
+    jsx: string
+    css: string
+  }
+  generatedCode?: {
     jsx: string
     css: string
   }
   tags?: string[]
+  is_starred?: boolean
   isStarred?: boolean
 }
 
@@ -68,9 +76,17 @@ export default function DashboardPage() {
 
   const fetchSessions = async () => {
     try {
-      // Get user-specific sessions using utility function
-      const sessionsData = getAllUserSessions()
-      setSessions(sessionsData)
+      // Get sessions from API
+      const token = localStorage.getItem('supabase.auth.token')
+      const response = await fetch("/api/sessions", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setSessions(data.sessions)
+      }
     } catch (error) {
       console.error("Failed to fetch sessions:", error)
     } finally {
@@ -80,33 +96,41 @@ export default function DashboardPage() {
 
   const createNewSession = async () => {
     try {
-      const sessionId = Date.now().toString()
-      const newSession = {
-        _id: sessionId,
-        sessionName: `New Session ${sessions.length + 1}`,
-        lastModified: new Date().toISOString(),
-        chatHistory: [],
-        generatedCode: { jsx: "", css: "" },
-        componentProperties: [],
+      // Create session via API
+      const token = localStorage.getItem('supabase.auth.token')
+      const response = await fetch("/api/sessions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionName: `New Session ${sessions.length + 1}`,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSessions(prev => [...prev, data.session])
+        
+        // Navigate to the new session
+        router.push(`/session/${data.session.id}`)
       }
-      
-      // Save session using utility function
-      setUserData(`session_${sessionId}`, newSession)
-      setSessions(prev => [...prev, newSession])
-      
-      // Navigate to the new session
-      router.push(`/session/${sessionId}`)
     } catch (error) {
       console.error("Failed to create session:", error)
     }
   }
 
   const filteredSessions = sessions.filter((session) => {
-    const matchesSearch = session.sessionName.toLowerCase().includes(searchTerm.toLowerCase())
+    const sessionName = session.session_name || session.sessionName || "Untitled Session"
+    const lastModified = session.last_modified || session.lastModified || new Date().toISOString()
+    const isStarred = session.is_starred || session.isStarred || false
+    
+    const matchesSearch = sessionName.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesFilter =
       filterBy === "all" ||
-      (filterBy === "recent" && new Date(session.lastModified) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) ||
-      (filterBy === "starred" && session.isStarred)
+      (filterBy === "recent" && new Date(lastModified) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) ||
+      (filterBy === "starred" && isStarred)
 
     return matchesSearch && matchesFilter
   })
@@ -226,7 +250,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Components Generated</p>
-                    <p className="text-2xl font-bold">{sessions.filter((s) => s.generatedCode.jsx).length}</p>
+                    <p className="text-2xl font-bold">{sessions.filter((s) => (s.generated_code || s.generatedCode || {}).jsx).length}</p>
                   </div>
                   <Sparkles className="h-8 w-8 text-purple-600" />
                 </div>
@@ -240,7 +264,7 @@ export default function DashboardPage() {
                     <p className="text-2xl font-bold">
                       {
                         sessions.filter(
-                          (s) => new Date(s.lastModified) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+                          (s) => new Date(s.last_modified || s.lastModified || new Date().toISOString()) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
                         ).length
                       }
                     </p>
@@ -256,7 +280,7 @@ export default function DashboardPage() {
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg. Messages</p>
                     <p className="text-2xl font-bold">
                       {sessions.length > 0
-                        ? Math.round(sessions.reduce((acc, s) => acc + s.chatHistory.length, 0) / sessions.length)
+                        ? Math.round(sessions.reduce((acc, s) => acc + (s.chat_history || s.chatHistory || []).length, 0) / sessions.length)
                         : 0}
                     </p>
                   </div>
@@ -356,77 +380,87 @@ export default function DashboardPage() {
             transition={{ delay: 0.2 }}
             className={viewMode === "grid" ? "grid md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}
           >
-            {filteredSessions.map((session, index) => (
-              <motion.div
-                key={session._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + index * 0.05 }}
-              >
-                <Card className="card-hover cursor-pointer group">
-                  <Link href={`/session/${session._id}`}>
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-start">
-                        <CardTitle className="text-lg truncate group-hover:text-blue-600 transition-colors">
-                          {session.sessionName}
-                        </CardTitle>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="secondary" className="text-xs">
-                            {session.chatHistory.length} msgs
-                          </Badge>
-                          {session.isStarred && (
-                            <Badge variant="outline" className="text-yellow-600 border-yellow-600">
-                              ⭐
+            {filteredSessions.map((session, index) => {
+              const sessionId = session.id || session._id || `session-${index}`
+              const sessionName = session.session_name || session.sessionName || "Untitled Session"
+              const lastModified = session.last_modified || session.lastModified || new Date().toISOString()
+              const isStarred = session.is_starred || session.isStarred || false
+              const chatHistory = session.chat_history || session.chatHistory || []
+              const generatedCode = session.generated_code || session.generatedCode || { jsx: "", css: "" }
+              const tags = session.tags || []
+              
+              return (
+                <motion.div
+                  key={sessionId}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + index * 0.05 }}
+                >
+                  <Card className="card-hover cursor-pointer group">
+                    <Link href={`/session/${sessionId}`}>
+                      <CardHeader className="pb-3">
+                        <div className="flex justify-between items-start">
+                          <CardTitle className="text-lg truncate group-hover:text-blue-600 transition-colors">
+                            {sessionName}
+                          </CardTitle>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {chatHistory.length} msgs
                             </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <CardDescription className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4" />
-                        <span>{new Date(session.lastModified).toLocaleDateString()}</span>
-                        <span className="text-xs">{new Date(session.lastModified).toLocaleTimeString()}</span>
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {session.generatedCode.jsx ? (
-                        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-sm font-mono">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs text-gray-500 uppercase tracking-wide">Generated Code</span>
-                            <Badge variant="outline" className="text-xs">
-                              JSX
-                            </Badge>
+                            {isStarred && (
+                              <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                                ⭐
+                              </Badge>
+                            )}
                           </div>
-                          <code className="text-gray-800 dark:text-gray-200 line-clamp-3">
-                            {session.generatedCode.jsx.substring(0, 120)}
-                            {session.generatedCode.jsx.length > 120 && "..."}
-                          </code>
                         </div>
-                      ) : (
-                        <div className="text-center py-8 text-gray-500 italic">
-                          <Code className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                          <p>No code generated yet</p>
-                        </div>
-                      )}
+                        <CardDescription className="flex items-center space-x-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>{new Date(lastModified).toLocaleDateString()}</span>
+                          <span className="text-xs">{new Date(lastModified).toLocaleTimeString()}</span>
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {generatedCode.jsx ? (
+                          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-sm font-mono">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs text-gray-500 uppercase tracking-wide">Generated Code</span>
+                              <Badge variant="outline" className="text-xs">
+                                JSX
+                              </Badge>
+                            </div>
+                            <code className="text-gray-800 dark:text-gray-200 line-clamp-3">
+                              {generatedCode.jsx.substring(0, 120)}
+                              {generatedCode.jsx.length > 120 && "..."}
+                            </code>
+                          </div>
+                        ) : (
+                          <div className="text-center py-8 text-gray-500 italic">
+                            <Code className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <p>No code generated yet</p>
+                          </div>
+                        )}
 
-                      {session.tags && session.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-3">
-                          {session.tags.slice(0, 3).map((tag, tagIndex) => (
-                            <Badge key={tagIndex} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                          {session.tags.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{session.tags.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Link>
-                </Card>
-              </motion.div>
-            ))}
+                        {tags && tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-3">
+                            {tags.slice(0, 3).map((tag, tagIndex) => (
+                              <Badge key={tagIndex} variant="outline" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                            {tags.length > 3 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{tags.length - 3}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Link>
+                  </Card>
+                </motion.div>
+              )
+            })}
           </motion.div>
         )}
       </div>

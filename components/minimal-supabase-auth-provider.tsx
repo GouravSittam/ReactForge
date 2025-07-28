@@ -63,8 +63,9 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
         setSession(session)
         const profile = createUserProfileFromAuth(session.user)
         setUser(profile)
-        // Store user ID in localStorage for user-specific data
+        // Store user ID and access token in localStorage
         localStorage.setItem('currentUserId', session.user.id)
+        localStorage.setItem('supabase.auth.token', session.access_token)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
@@ -91,12 +92,14 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
         if (session?.user) {
           const profile = createUserProfileFromAuth(session.user)
           setUser(profile)
-          // Store user ID in localStorage for user-specific data
+          // Store user ID and access token in localStorage
           localStorage.setItem('currentUserId', session.user.id)
+          localStorage.setItem('supabase.auth.token', session.access_token)
         } else {
           setUser(null)
-          // Clear user ID from localStorage
+          // Clear user data from localStorage
           localStorage.removeItem('currentUserId')
+          localStorage.removeItem('supabase.auth.token')
         }
         
         setLoading(false)
@@ -408,8 +411,9 @@ export function MinimalSupabaseAuthProvider({ children }: { children: React.Reac
 
       setUser(null)
       setSession(null)
-      // Clear user ID from localStorage
+      // Clear user data from localStorage
       localStorage.removeItem('currentUserId')
+      localStorage.removeItem('supabase.auth.token')
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",

@@ -2,7 +2,6 @@
 
 import { create } from "zustand"
 import { useMinimalSupabaseAuth } from "@/components/minimal-supabase-auth-provider"
-import { getUserData, setUserData, getAllUserSessions } from "@/lib/user-storage"
 
 interface ChatMessage {
   role: "user" | "assistant"
@@ -26,12 +25,12 @@ interface ComponentProperty {
 }
 
 interface Session {
-  _id: string
-  sessionName: string
-  lastModified: string
-  chatHistory: ChatMessage[]
-  generatedCode: GeneratedCode
-  componentProperties?: ComponentProperty[]
+  id: string
+  session_name: string
+  last_modified: string
+  chat_history: ChatMessage[]
+  generated_code: GeneratedCode
+  component_properties?: ComponentProperty[]
 }
 
 interface SessionStore {
@@ -61,24 +60,32 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   loadSession: async (sessionId: string) => {
     set({ isLoading: true })
     try {
-      // Use utility function to get user-specific session data
-      const storedSession = getUserData(`session_${sessionId}`)
-      if (storedSession) {
+      // Get session from API
+      const token = localStorage.getItem('supabase.auth.token')
+      const response = await fetch(`/api/sessions/${sessionId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const session = data.session
         set({
-          currentSession: storedSession,
-          chatHistory: storedSession.chatHistory || [],
-          generatedCode: storedSession.generatedCode || { jsx: "", css: "" },
-          componentProperties: storedSession.componentProperties || [],
+          currentSession: session,
+          chatHistory: session.chat_history || [],
+          generatedCode: session.generated_code || { jsx: "", css: "" },
+          componentProperties: session.component_properties || [],
         })
       } else {
         // Create a new session if none exists
         const newSession = {
-          _id: sessionId,
-          sessionName: "New Session",
-          lastModified: new Date().toISOString(),
-          chatHistory: [],
-          generatedCode: { jsx: "", css: "" },
-          componentProperties: [],
+          id: sessionId,
+          session_name: "New Session",
+          last_modified: new Date().toISOString(),
+          chat_history: [],
+          generated_code: { jsx: "", css: "" },
+          component_properties: [],
         }
         set({
           currentSession: newSession,
@@ -99,16 +106,26 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     if (!currentSession) return
 
     try {
-      // Save to user-specific local storage using utility function
-      const updatedSession = {
-        ...currentSession,
-        chatHistory,
-        generatedCode,
-        componentProperties,
-        lastModified: new Date().toISOString(),
+      // Save session to API
+      const token = localStorage.getItem('supabase.auth.token')
+      const response = await fetch(`/api/sessions/${currentSession.id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionName: currentSession.session_name,
+          chatHistory,
+          generatedCode,
+          componentProperties,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        set({ currentSession: data.session })
       }
-      setUserData(`session_${currentSession._id}`, updatedSession)
-      set({ currentSession: updatedSession })
     } catch (error) {
       console.error("Failed to save session:", error)
     }
@@ -129,14 +146,23 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     if (!currentSession) return
 
     try {
-      // Update user-specific local storage using utility function
-      const updatedSession = {
-        ...currentSession,
-        sessionName: name,
-        lastModified: new Date().toISOString(),
+      // Update session name via API
+      const token = localStorage.getItem('supabase.auth.token')
+      const response = await fetch(`/api/sessions/${currentSession.id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sessionName: name,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        set({ currentSession: data.session })
       }
-      setUserData(`session_${currentSession._id}`, updatedSession)
-      set({ currentSession: updatedSession })
     } catch (error) {
       console.error("Failed to update session name:", error)
     }
