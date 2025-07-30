@@ -165,11 +165,13 @@ export default function DashboardPage() {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center space-x-3"
           >
-            <div className="relative">
-              <Code className="h-8 w-8 text-blue-600" />
-              <Sparkles className="h-4 w-4 text-yellow-500 absolute -top-1 -right-1" />
-            </div>
-            <h1 className="text-2xl font-bold gradient-text">ReactForge</h1>
+            <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+              <div className="relative">
+                <Code className="h-8 w-8 text-blue-600" />
+                <Sparkles className="h-4 w-4 text-yellow-500 absolute -top-1 -right-1" />
+              </div>
+              <h1 className="text-2xl font-bold gradient-text">ReactForge</h1>
+            </Link>
           </motion.div>
 
           <div className="flex items-center space-x-4">
