@@ -7,6 +7,8 @@ interface ChatMessage {
   role: "user" | "assistant"
   content: string
   timestamp: Date
+  id?: string
+  isStreaming?: boolean
 }
 
 interface GeneratedCode {

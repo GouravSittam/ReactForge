@@ -84,11 +84,9 @@ export function ChatInterface({ sessionId }: ChatInterfaceProps) {
 
     try {
       // Call the generate API
-      const token = localStorage.getItem('supabase.auth.token')
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -100,6 +98,11 @@ export function ChatInterface({ sessionId }: ChatInterfaceProps) {
 
       if (response.ok) {
         const data = await response.json()
+        
+        if (data.error) {
+          throw new Error(data.error)
+        }
+        
         const assistantMessage: ChatMessage = {
           role: "assistant",
           content: data.response,
@@ -117,7 +120,8 @@ export function ChatInterface({ sessionId }: ChatInterfaceProps) {
           })
         }
       } else {
-        throw new Error("Failed to generate response")
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
       }
 
 

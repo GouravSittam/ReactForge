@@ -21,7 +21,7 @@ interface SessionPageProps {
 export default function SessionPage({ params }: SessionPageProps) {
   const { user, loading } = useMinimalSupabaseAuth()
   const router = useRouter()
-  const { currentSession, loadSession, saveSession } = useSessionStore()
+  const { currentSession, generatedCode, loadSession, saveSession } = useSessionStore()
   const [showPropertyPanel, setShowPropertyPanel] = useState(false)
 
   useEffect(() => {
@@ -57,6 +57,10 @@ export default function SessionPage({ params }: SessionPageProps) {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload)
   }, [currentSession, saveSession])
 
+
+
+
+
   if (loading || !currentSession) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -71,11 +75,7 @@ export default function SessionPage({ params }: SessionPageProps) {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      <SessionHeader
-        session={currentSession}
-        onTogglePropertyPanel={() => setShowPropertyPanel(!showPropertyPanel)}
-        showPropertyPanel={showPropertyPanel}
-      />
+      <SessionHeader session={currentSession} />
 
       <div className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -89,16 +89,26 @@ export default function SessionPage({ params }: SessionPageProps) {
           {/* Main Content */}
           <ResizablePanel defaultSize={showPropertyPanel ? 50 : 75}>
             <ResizablePanelGroup direction="vertical">
-              {/* Preview Panel */}
-              <ResizablePanel defaultSize={60} minSize={40}>
-                <ComponentPreview />
-              </ResizablePanel>
+                        {/* Preview Panel */}
+          <ResizablePanel defaultSize={60} minSize={40}>
+            <ComponentPreview 
+              code={generatedCode.jsx || ""} 
+              css={generatedCode.css || ""} 
+            />
+          </ResizablePanel>
 
               <ResizableHandle className="resize-handle" />
 
               {/* Code Editor Panel */}
               <ResizablePanel defaultSize={40} minSize={30}>
-                <CodeEditor />
+                <CodeEditor 
+                  jsx={generatedCode.jsx || ""}
+                  css={generatedCode.css || ""}
+                  onChange={(jsx, css) => {
+                    const { updateCode } = useSessionStore.getState()
+                    updateCode({ jsx, css })
+                  }}
+                />
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>

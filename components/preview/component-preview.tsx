@@ -16,7 +16,16 @@ export function ComponentPreview({ code, css }: ComponentPreviewProps) {
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
+
+
   const createPreviewHTML = (jsx: string, styles = "") => {
+    // Clean up the JSX code for browser environment
+    let cleanJsx = jsx
+      .replace(/import\s+.*?from\s+['"][^'"]*['"];?\s*/g, '') // Remove imports
+      .replace(/export\s+default\s+/g, '') // Remove export default
+      .replace(/export\s+{.*?};?\s*/g, '') // Remove named exports
+      .trim()
+
     return `
 <!DOCTYPE html>
 <html lang="en">
@@ -43,14 +52,17 @@ export function ComponentPreview({ code, css }: ComponentPreviewProps) {
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
     
-    ${jsx}
+    ${cleanJsx}
     
     // Try to find and render the component
     const componentNames = Object.keys(window).filter(key => 
       typeof window[key] === 'function' && 
       key[0] === key[0].toUpperCase() &&
       key !== 'React' && 
-      key !== 'ReactDOM'
+      key !== 'ReactDOM' &&
+      key !== 'useState' &&
+      key !== 'useEffect' &&
+      key !== 'useRef'
     );
     
     let ComponentToRender = null;
@@ -63,9 +75,10 @@ export function ComponentPreview({ code, css }: ComponentPreviewProps) {
     }
     
     if (ComponentToRender) {
-      ReactDOM.render(React.createElement(ComponentToRender), document.getElementById('root'));
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(React.createElement(ComponentToRender));
     } else {
-      document.getElementById('root').innerHTML = '<p style="color: #666; text-align: center; margin-top: 50px;">No component found to render</p>';
+      document.getElementById('root').innerHTML = '<p style="color: #666; text-align: center; margin-top: 50px;">No component found to render. Available components: ' + componentNames.join(', ') + '</p>';
     }
   </script>
 </body>
@@ -166,7 +179,7 @@ export function ComponentPreview({ code, css }: ComponentPreviewProps) {
               ref={iframeRef}
               className="w-full h-full border-0"
               title="Component Preview"
-              sandbox="allow-scripts"
+              sandbox="allow-scripts allow-same-origin"
             />
           </Card>
         ) : (
