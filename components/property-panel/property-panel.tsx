@@ -53,6 +53,7 @@ export function PropertyPanel() {
             value={property.value}
             onChange={(e) => handlePropertyChange(index, e.target.value)}
             placeholder={`Enter ${property.name}`}
+            className="text-xs sm:text-sm h-8 sm:h-10"
           />
         )
       
@@ -74,6 +75,7 @@ export function PropertyPanel() {
               min={property.min}
               max={property.max}
               step={property.step}
+              className="text-xs sm:text-sm h-8 sm:h-10"
             />
           </div>
         )
@@ -93,12 +95,13 @@ export function PropertyPanel() {
               type="color"
               value={property.value}
               onChange={(e) => handlePropertyChange(index, e.target.value)}
-              className="w-12 h-10 p-1"
+              className="w-8 h-8 sm:w-12 sm:h-10 p-1"
             />
             <Input
               value={property.value}
               onChange={(e) => handlePropertyChange(index, e.target.value)}
               placeholder="#000000"
+              className="text-xs sm:text-sm h-8 sm:h-10"
             />
           </div>
         )
@@ -106,12 +109,12 @@ export function PropertyPanel() {
       case "select":
         return (
           <Select value={property.value} onValueChange={(value) => handlePropertyChange(index, value)}>
-            <SelectTrigger>
+            <SelectTrigger className="text-xs sm:text-sm h-8 sm:h-10">
               <SelectValue placeholder={`Select ${property.name}`} />
             </SelectTrigger>
             <SelectContent>
               {property.options?.map((option) => (
-                <SelectItem key={option} value={option}>
+                <SelectItem key={option} value={option} className="text-xs sm:text-sm">
                   {option}
                 </SelectItem>
               ))}
@@ -126,27 +129,28 @@ export function PropertyPanel() {
             onChange={(e) => handlePropertyChange(index, e.target.value)}
             placeholder={`Enter ${property.name}`}
             rows={3}
+            className="text-xs sm:text-sm min-h-[60px] sm:min-h-[80px]"
           />
         )
       
       default:
-        return <Input value={property.value} onChange={(e) => handlePropertyChange(index, e.target.value)} />
+        return <Input value={property.value} onChange={(e) => handlePropertyChange(index, e.target.value)} className="text-xs sm:text-sm h-8 sm:h-10" />
     }
   }
 
   return (
     <div className="h-full bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-y-auto">
-      <div className="p-4 space-y-4">
+      <div className="p-2 sm:p-4 space-y-3 sm:space-y-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Component Properties</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg font-semibold">Component Properties</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               {properties.map((property, index) => (
                 <motion.div
                   key={property.name}
@@ -155,7 +159,7 @@ export function PropertyPanel() {
                   transition={{ duration: 0.2, delay: index * 0.1 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor={property.name} className="text-sm font-medium capitalize">
+                  <Label htmlFor={property.name} className="text-xs sm:text-sm font-medium capitalize">
                     {property.name}
                   </Label>
                   {renderPropertyInput(property, index)}
@@ -173,17 +177,17 @@ export function PropertyPanel() {
           transition={{ duration: 0.3, delay: 0.2 }}
         >
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg font-semibold">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start text-xs sm:text-sm h-8 sm:h-10">
                 Reset Properties
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start text-xs sm:text-sm h-8 sm:h-10">
                 Export Properties
               </Button>
-              <Button variant="outline" className="w-full justify-start">
+              <Button variant="outline" className="w-full justify-start text-xs sm:text-sm h-8 sm:h-10">
                 Import Properties
               </Button>
             </CardContent>
