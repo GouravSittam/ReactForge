@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Github, Instagram, Linkedin, Menu, X, Code, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { SmoothScrollLink } from './smooth-scroll-link';
 
 type AvatarProps = {
   imageSrc: string;
@@ -176,9 +177,9 @@ const Navbar: React.FC = () => {
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="#features" className="text-gray-300 hover:text-white transition-colors duration-300">
+            <SmoothScrollLink href="#features" className="text-gray-300 hover:text-white transition-colors duration-300">
               Features
-            </Link>
+            </SmoothScrollLink>
             <Link href="/demo" className="text-gray-300 hover:text-white transition-colors duration-300">
               Demo
             </Link>
@@ -205,9 +206,9 @@ const Navbar: React.FC = () => {
         {isMenuOpen && (
           <div className="md:hidden mt-4 bg-gray-900 bg-opacity-95 backdrop-blur-sm rounded-lg p-4 animate-fadeIn">
             <div className="flex flex-col space-y-4">
-              <Link href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 py-2">
+              <SmoothScrollLink href="#features" className="text-gray-300 hover:text-white transition-colors duration-300 py-2">
                 Features
-              </Link>
+              </SmoothScrollLink>
               <Link href="/demo" className="text-gray-300 hover:text-white transition-colors duration-300 py-2">
                 Demo
               </Link>

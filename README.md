@@ -46,12 +46,21 @@
 - **Bun Runtime** - Lightning-fast package management and development
 - **Performance Optimized** - Fast loading and smooth animations
 - **Hot Reload** - Instant feedback during development
+- **LENIS Smooth Scrolling** - Buttery smooth scrolling experience with 60fps performance
 
 ### 🔐 **Authentication & Storage**
 - **Supabase Integration** - Secure user authentication
 - **Session Management** - Persistent user sessions
 - **Cloud Sync** - Access your data anywhere
 - **Local Storage Fallback** - Works offline
+
+### ⚡ **Smooth Scrolling Experience**
+- **LENIS Integration** - Professional-grade smooth scrolling library
+- **Custom Easing** - Exponential easing for natural feel
+- **Anchor Link Navigation** - Smooth scrolling to page sections
+- **Scroll to Top Button** - Floating button with smooth navigation
+- **Touch Optimized** - Mobile-friendly scrolling behavior
+- **Performance Optimized** - 60fps target with RAF loop
 
 ---
 

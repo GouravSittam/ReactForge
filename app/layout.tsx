@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { MinimalSupabaseAuthProvider } from "@/components/minimal-supabase-auth-provider"
 import { SessionProvider } from "@/components/session-provider"
 import { ErrorBoundary } from "@/components/error-boundary"
+import { LenisProvider } from "@/components/lenis-provider"
+import { ScrollToTop } from "@/components/ui/scroll-to-top"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,14 +28,17 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ErrorBoundary>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <MinimalSupabaseAuthProvider>
-              <SessionProvider>
-                {children}
+          <LenisProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              <MinimalSupabaseAuthProvider>
+                <SessionProvider>
+                                  {children}
+                <ScrollToTop />
                 <Toaster />
-              </SessionProvider>
-            </MinimalSupabaseAuthProvider>
-          </ThemeProvider>
+                </SessionProvider>
+              </MinimalSupabaseAuthProvider>
+            </ThemeProvider>
+          </LenisProvider>
         </ErrorBoundary>
       </body>
     </html>
