@@ -163,6 +163,50 @@ export function ComponentPreview({ code, css }: ComponentPreviewProps) {
         </div>
       </div>
 
+      {/* Responsive Preview Controls */}
+      {code && (
+        <div className="px-4 py-2 border-b bg-gray-50 dark:bg-gray-900">
+          <div className="flex items-center space-x-4">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Preview Size:</span>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-xs px-2 py-1"
+                onClick={() => {
+                  const iframe = iframeRef.current;
+                  if (iframe) iframe.style.width = '320px';
+                }}
+              >
+                📱 Mobile
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-xs px-2 py-1"
+                onClick={() => {
+                  const iframe = iframeRef.current;
+                  if (iframe) iframe.style.width = '768px';
+                }}
+              >
+                📱 Tablet
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-xs px-2 py-1"
+                onClick={() => {
+                  const iframe = iframeRef.current;
+                  if (iframe) iframe.style.width = '100%';
+                }}
+              >
+                🖥️ Desktop
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Preview Area */}
       <div className="flex-1 p-4">
         {code ? (
@@ -175,12 +219,15 @@ export function ComponentPreview({ code, css }: ComponentPreviewProps) {
                 </div>
               </div>
             )}
-            <iframe
-              ref={iframeRef}
-              className="w-full h-full border-0"
-              title="Component Preview"
-              sandbox="allow-scripts allow-same-origin"
-            />
+            <div className="h-full flex items-center justify-center">
+              <iframe
+                ref={iframeRef}
+                className="border-0 transition-all duration-300"
+                style={{ height: '100%', minHeight: '400px' }}
+                title="Component Preview"
+                sandbox="allow-scripts allow-same-origin"
+              />
+            </div>
           </Card>
         ) : (
           <Card className="h-full flex items-center justify-center">
